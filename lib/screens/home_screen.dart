@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rest_api/models/user_model.dart';
+import 'package:flutter_rest_api/services/user_api.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,14 @@ class _HomeScreenState extends State<HomeScreen> {
   // List<dynamic> users = []; OLD
   // Cuandro creemos el modelo user ahora la lista sera del modelo User
   List<User> users = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Llamamos la api al inicio
+    fetchUsers();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,49 +33,30 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index];
-          final color = user.gender == 'male' ? Colors.red[100] : Colors.blue;
+          // final color = user.gender == 'male' ? Colors.red[100] : Colors.blue;
           return ListTile(
             // leading: Image.network(user['picture']['thumbnail']),
-            title: Text('${user.name.title} ${user.name.last}'),
-            tileColor: color,
+            title: Text( user.fullName),
+            // tileColor: color,
             subtitle: Text(user.phone),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.update),
-        onPressed: fetchUsers
-      ),
+      // Boton para hacer el fetch
+      // floatingActionButton: FloatingActionButton(
+      //   child: const Icon(Icons.update),
+      //   onPressed: fetchUsers
+      // ),
     );
+
   }
-  void fetchUsers() async {
-    print('Fetching users');
-    final Response response;
-    // Con Dio no hace falta hacer el jsonDecode
-    response = await dio.get('https://randomuser.me/api/?results=100');
-    // Expecificamos el tipo de dato porque la response es <dinamyc> y no <List<dynamic>> y usar el map
-    final data = response.data['results'] as List<dynamic>;
-    setState(() {
-      // users = response.data['results'];  OLD
-      // Aplicamos el model User
-      users = data.map((user) {
-        final name = UserName(
-          title: user['name']['title'], 
-          first: user['name']['first'], 
-          last: user['name']['last']
-        );
-        return User(
-          gender: user['gender'],
-          email: user['email'],
-          phone: user['phone'],
-          cell: user['cell'],
-          nat: user['nat'],
-          name: name
-        );
-      } ).toList();
-    });
-    print('Fetching complete');
-  }
+    // Tiene que ser una funcion aparte porque el initState() no puede ser async
+    Future<void> fetchUsers() async {
+      final resp = await UserApi.fetchUsers(); 
+      setState(() {
+        users = resp;
+      });
+    }
 }
 
 
