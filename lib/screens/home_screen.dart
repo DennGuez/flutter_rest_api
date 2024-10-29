@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // leading: Image.network(user['picture']['thumbnail']),
             title: Text( user.fullName),
             // tileColor: color,
-            subtitle: Text(user.phone),
+            subtitle: Text(user.location.postCode),
           );
         },
       ),
